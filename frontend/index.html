@@ -1,28 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Leilão</title>
-</head>
-<body>
-    <div style="display: flex; align-items: center;">
-        <h1>Produto:</h1>
-        <p>10,00</p>
+  </head>
+  <body>
+    <div style="display: flex; align-items: center">
+      <h1>Produto:</h1>
+      <p id="value-product">R$0,00</p>
     </div>
-    <button onclick="makeMove(30)">Lance de 10 reais</button>
-</body>
-<script>
-function makeMove(value)
-{
-    console.log("ok");
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "http://localhost:3000/moves", true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(JSON.stringify({
-        value: value
-    }));
-}
-</script>
+    <button onclick="makeMove(newValueMove)" id="lance">
+      Lance de 10 reais
+    </button>
+  </body>
+  <script
+    type="text/javascript"
+    src="http://localhost:3001/socket.io/socket.io.js"
+  ></script>
+  <script>
+    var socket = io.connect("http://localhost:3001");
+    var newValueMove = 10;
+    socket.on("message", function (msg) {
+      console.log(msg);
+      document.getElementById("value-product").innerHTML = `R$${Math.floor(
+        msg
+      )}`;
+      newValueMove = Math.floor(msg) + 10;
+      document.getElementById(
+        "lance"
+      ).innerText = `Lance de ${newValueMove} reais`;
+    });
+    function makeMove(value) {
+      console.log("value", value);
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "http://localhost:3000/moves", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.send(
+        JSON.stringify({
+          value: value,
+        })
+      );
+    }
+  </script>
 </html>
